@@ -4,112 +4,137 @@
 package ecologylab.xml.library.audiometadata;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.List;
+import java.util.Map;
 
-import org.jaudiotagger.audio.AudioFile;
-import org.jaudiotagger.audio.AudioFileIO;
-import org.jaudiotagger.audio.exceptions.CannotReadException;
-import org.jaudiotagger.audio.exceptions.CannotWriteException;
-import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
-import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
-import org.jaudiotagger.tag.Tag;
-import org.jaudiotagger.tag.TagException;
+import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
+
+import org.tritonus.share.sampled.file.TAudioFileFormat;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
 
 /**
- * Library for creating and manipulating XML based upon an audio file's metadata tags.
+ * Library for creating and manipulating XML based upon an audio file's metadata
+ * tags and characteristics, such as artist, album, and duration.
+ * 
+ * Note that when translating FROM an AudioFileMetadata object, the METADATA
+ * will NOT be refereshed from the original file, while CHARACTERISTICS of the
+ * file (such as duration) will be refreshed. This allows you to store your own,
+ * different (modified) metadata and utilize it as cannon, rather than replacing
+ * it with the data stored in the file. You may use the refreshMetadataFromFile
+ * method to ensure that this object contains the data from the original file,
+ * if so desired.
+ * 
+ * This class can also expose the underlying properties map for the associated
+ * file. Note that this map ALWAYS contains the data based upon the file and
+ * should not be changed. Also note that since it contains data based on the
+ * file, such data may be different from what is stored in the AudioFileMetadata
+ * object if that object has been modified after reading from the file.
+ * 
+ * This class does not yet support writing metadata back to the original audio
+ * file.
  * 
  * @author Zach
  * 
  */
 public class AudioFileMetadata extends ElementState
 {
-    @xml_attribute String    title;
+    @xml_attribute protected String    title;
 
-    @xml_attribute String    artist;
+    @xml_attribute protected String    artist;
 
-    @xml_attribute String    album;
+    @xml_attribute protected String    album;
 
-    @xml_attribute String    year;
+    @xml_attribute protected String    year;
 
-    @xml_attribute String    comment;
+    @xml_attribute protected String    comment;
 
-    @xml_attribute String    genre;
+    @xml_attribute protected String    genre;
 
-    @xml_attribute ParsedURL file;
+    @xml_attribute protected String    track;
 
-    private AudioFile        cachedFile = null;
+    @xml_attribute protected long      duration;
+
+    @xml_attribute protected ParsedURL file;
+
+    protected Map<String, Object>      propertiesMap;
 
     /**
      * No-arg constructor for XML conversion.
      * 
-     * THIS CONSTRUCTOR SHOULD NOT BE USED! USING THIS CONSTRUCTOR WILL RESULT IN AN INVALID STATE FOR THIS OBJECT!
+     * THIS CONSTRUCTOR SHOULD NOT BE USED! USING THIS CONSTRUCTOR WILL RESULT
+     * IN AN INVALID STATE FOR THIS OBJECT!
      */
     @Deprecated public AudioFileMetadata()
     {
     }
 
-    public AudioFileMetadata(File audioFile) throws CannotReadException, IOException, TagException,
-            ReadOnlyFileException, InvalidAudioFrameException
+    public AudioFileMetadata(File audioFile) throws IOException,
+            ClassCastException, UnsupportedAudioFileException
     {
         this.populateMetadataFromFile(audioFile);
     }
 
-    public AudioFileMetadata(ParsedURL audioFileURL) throws CannotReadException, IOException, TagException,
-            ReadOnlyFileException, InvalidAudioFrameException
+    public AudioFileMetadata(ParsedURL audioFileURL) throws ClassCastException,
+            IOException, UnsupportedAudioFileException
     {
         this(audioFileURL.file());
     }
 
-    public void populateMetadataFromFile(File audioFile) throws CannotReadException, IOException, TagException,
-            ReadOnlyFileException, InvalidAudioFrameException
+    @SuppressWarnings("unchecked") protected void populateMetadataFromFile(
+            File audioFile) throws ClassCastException, IOException,
+            UnsupportedAudioFileException
     {
-        AudioFile newAudioFile = AudioFileIO.read(audioFile);
-
-        this.cachedFile = newAudioFile;
-
-        Tag tag = newAudioFile.getTag();
-
         this.file = new ParsedURL(audioFile);
 
-        this.album = tag.getFirstAlbum();
-        this.artist = tag.getFirstArtist();
-        this.comment = tag.getFirstComment();
-        this.genre = tag.getFirstGenre();
-        this.title = tag.getFirstTitle();
-        this.year = tag.getFirstYear();
+        this.verifyFileAndLoadProperties();
+
+        this.refreshMetadataFromFile();
+    }
+
+    public void refreshMetadataFromFile()
+    {
+        // metadata
+        this.album = (String) propertiesMap.get("album");
+        this.artist = (String) propertiesMap.get("author");
+        this.comment = (String) propertiesMap.get("comment");
+        this.genre = (String) propertiesMap.get("mp3.id3tag.genre");
+        this.title = (String) propertiesMap.get("title");
+        this.year = (String) propertiesMap.get("date");
+        this.track = (String) propertiesMap.get("mp3.id3tag.track");
+
+        // characteristics
+        this.duration = (Long) propertiesMap.get("duration");
     }
 
     /**
-     * Writes the current state of this back to the backing audio file's tags.
+     * This method is called after the file attribute has been set; it verifies
+     * that the file exists and is a file, then attempts to load it as an audio
+     * file and cache its properties map.
      * 
-     * @throws CannotWriteException
+     * @throws IOException
+     * @throws UnsupportedAudioFileException
+     * 
      */
-    public void commitMetadata() throws CannotWriteException
+    private void verifyFileAndLoadProperties()
+            throws UnsupportedAudioFileException, IOException
     {
-        Tag tag = null;
-
-        try
+        if (this.file == null || !this.file.file().exists())
         {
-            tag = cachedFile.getTag();
+            throw new FileNotFoundException();
         }
-        catch (NullPointerException e)
+        else
         {
-            this.debug("No backing audio file; fatal error. Do not use the no argument constructor!");
-            return;
-        }
+            File audioFile = this.file.file();
+            AudioFileFormat baseFileFormat = AudioSystem
+                    .getAudioFileFormat(audioFile);
 
-        tag.setAlbum(this.album);
-        tag.setArtist(this.artist);
-        tag.setComment(this.comment);
-        tag.setYear(this.year);
-        tag.setGenre(this.genre);
-        tag.setTitle(this.title);
-        
-        cachedFile.commit();
+            propertiesMap = ((TAudioFileFormat) baseFileFormat).properties();
+        }
     }
 
     /**
@@ -222,18 +247,23 @@ public class AudioFileMetadata extends ElementState
         return file;
     }
 
+    public long getDuration()
+    {
+        return duration;
+    }
+
     /**
-     * Attempts to cache the backing file for this object after it is created.
-     * 
-     * @see ecologylab.xml.ElementState#postTranslationProcessingHook()
+     * Checks the validity of the associated file and re-loads any
+     * characteristics (duration, etc.), but not metadata, from the associated
+     * file.
      */
     @Override protected void postTranslationProcessingHook()
     {
         try
         {
-            this.cachedFile = AudioFileIO.read(this.file.file());
+            this.verifyFileAndLoadProperties();
         }
-        catch (CannotReadException e)
+        catch (UnsupportedAudioFileException e)
         {
             e.printStackTrace();
         }
@@ -241,17 +271,23 @@ public class AudioFileMetadata extends ElementState
         {
             e.printStackTrace();
         }
-        catch (TagException e)
-        {
-            e.printStackTrace();
-        }
-        catch (ReadOnlyFileException e)
-        {
-            e.printStackTrace();
-        }
-        catch (InvalidAudioFrameException e)
-        {
-            e.printStackTrace();
-        }
+
+        super.preTranslationProcessingHook();
     }
+
+    public String getTrack()
+    {
+        return track;
+    }
+
+    public void setTrack(String track)
+    {
+        this.track = track;
+    }
+
+    public Map<String, Object> getPropertiesMap()
+    {
+        return propertiesMap;
+    }
+
 }
