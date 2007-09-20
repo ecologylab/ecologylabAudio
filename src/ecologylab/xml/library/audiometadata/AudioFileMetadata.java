@@ -12,10 +12,9 @@ import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import org.tritonus.share.sampled.file.TAudioFileFormat;
-
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
+import ecologylab.xml.types.element.Mappable;
 
 /**
  * Library for creating and manipulating XML based upon an audio file's metadata
@@ -41,7 +40,7 @@ import ecologylab.xml.ElementState;
  * @author Zach
  * 
  */
-public class AudioFileMetadata extends ElementState
+public class AudioFileMetadata extends ElementState implements Mappable<String>
 {
     @xml_attribute protected String    title;
 
@@ -61,6 +60,9 @@ public class AudioFileMetadata extends ElementState
 
     @xml_attribute protected ParsedURL file;
 
+    /** The unique identifier for this object; time when created + track title when created. */
+    @xml_attribute String id;
+    
     protected Map<String, Object>      propertiesMap;
 
     /**
@@ -77,6 +79,8 @@ public class AudioFileMetadata extends ElementState
             ClassCastException, UnsupportedAudioFileException
     {
         this.populateMetadataFromFile(audioFile);
+        
+        this.id = String.valueOf(System.currentTimeMillis())+this.title;
     }
 
     public AudioFileMetadata(ParsedURL audioFileURL) throws ClassCastException,
@@ -133,7 +137,7 @@ public class AudioFileMetadata extends ElementState
             AudioFileFormat baseFileFormat = AudioSystem
                     .getAudioFileFormat(audioFile);
 
-            propertiesMap = ((TAudioFileFormat) baseFileFormat).properties();
+            propertiesMap = (baseFileFormat).properties();
         }
     }
 
@@ -288,6 +292,22 @@ public class AudioFileMetadata extends ElementState
     public Map<String, Object> getPropertiesMap()
     {
         return propertiesMap;
+    }
+
+    /**
+     * @see ecologylab.xml.types.element.Mappable#key()
+     */
+    public String key()
+    {
+        return id;
+    }
+
+    /**
+     * @return the id
+     */
+    public String getId()
+    {
+        return id;
     }
 
 }
