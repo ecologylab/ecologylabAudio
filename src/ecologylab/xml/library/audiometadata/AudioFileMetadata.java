@@ -17,25 +17,21 @@ import ecologylab.xml.ElementState;
 import ecologylab.xml.types.element.Mappable;
 
 /**
- * Library for creating and manipulating XML based upon an audio file's metadata
- * tags and characteristics, such as artist, album, and duration.
+ * Library for creating and manipulating XML based upon an audio file's metadata tags and characteristics, such as
+ * artist, album, and duration.
  * 
- * Note that when translating FROM an AudioFileMetadata object, the METADATA
- * will NOT be refereshed from the original file, while CHARACTERISTICS of the
- * file (such as duration) will be refreshed. This allows you to store your own,
- * different (modified) metadata and utilize it as cannon, rather than replacing
- * it with the data stored in the file. You may use the refreshMetadataFromFile
- * method to ensure that this object contains the data from the original file,
+ * Note that when translating FROM an AudioFileMetadata object, the METADATA will NOT be refereshed from the original
+ * file, while CHARACTERISTICS of the file (such as duration) will be refreshed. This allows you to store your own,
+ * different (modified) metadata and utilize it as cannon, rather than replacing it with the data stored in the file.
+ * You may use the refreshMetadataFromFile method to ensure that this object contains the data from the original file,
  * if so desired.
  * 
- * This class can also expose the underlying properties map for the associated
- * file. Note that this map ALWAYS contains the data based upon the file and
- * should not be changed. Also note that since it contains data based on the
- * file, such data may be different from what is stored in the AudioFileMetadata
- * object if that object has been modified after reading from the file.
+ * This class can also expose the underlying properties map for the associated file. Note that this map ALWAYS contains
+ * the data based upon the file and should not be changed. Also note that since it contains data based on the file, such
+ * data may be different from what is stored in the AudioFileMetadata object if that object has been modified after
+ * reading from the file.
  * 
- * This class does not yet support writing metadata back to the original audio
- * file.
+ * This class does not yet support writing metadata back to the original audio file.
  * 
  * @author Zach
  * 
@@ -61,43 +57,39 @@ public class AudioFileMetadata extends ElementState implements Mappable<String>
     @xml_attribute protected ParsedURL file;
 
     /** The unique identifier for this object; time when created + track title when created. */
-    @xml_attribute String id;
-    
+    @xml_attribute String              id;
+
     protected Map<String, Object>      propertiesMap;
 
     /**
      * No-arg constructor for XML conversion.
      * 
-     * THIS CONSTRUCTOR SHOULD NOT BE USED! USING THIS CONSTRUCTOR WILL RESULT
-     * IN AN INVALID STATE FOR THIS OBJECT!
+     * THIS CONSTRUCTOR SHOULD NOT BE USED! USING THIS CONSTRUCTOR WILL RESULT IN AN INVALID STATE FOR THIS OBJECT!
      */
     @Deprecated public AudioFileMetadata()
     {
     }
 
-    public AudioFileMetadata(File audioFile) throws IOException,
-            ClassCastException, UnsupportedAudioFileException
+    public AudioFileMetadata(File audioFile) throws IOException, ClassCastException, UnsupportedAudioFileException
     {
-        this.populateMetadataFromFile(audioFile);
-        
-        this.id = String.valueOf(System.currentTimeMillis())+this.title;
+        this(new ParsedURL(audioFile));
     }
 
-    public AudioFileMetadata(ParsedURL audioFileURL) throws ClassCastException,
-            IOException, UnsupportedAudioFileException
-    {
-        this(audioFileURL.file());
-    }
-
-    @SuppressWarnings("unchecked") protected void populateMetadataFromFile(
-            File audioFile) throws ClassCastException, IOException,
+    public AudioFileMetadata(ParsedURL audioFileURL) throws ClassCastException, IOException,
             UnsupportedAudioFileException
     {
-        this.file = new ParsedURL(audioFile);
+        this.file = audioFileURL;
 
+        this.populateMetadataFromFile();
+    }
+
+    protected void populateMetadataFromFile() throws ClassCastException, IOException, UnsupportedAudioFileException
+    {
         this.verifyFileAndLoadProperties();
 
         this.refreshMetadataFromFile();
+
+        this.id = String.valueOf(System.currentTimeMillis()) + this.title;
     }
 
     public void refreshMetadataFromFile()
@@ -112,32 +104,48 @@ public class AudioFileMetadata extends ElementState implements Mappable<String>
         this.track = (String) propertiesMap.get("mp3.id3tag.track");
 
         // characteristics
-        this.duration = (Long) propertiesMap.get("duration");
+        if (propertiesMap.get("duration") != null)
+        {
+            this.duration = (Long) propertiesMap.get("duration");
+        }
+        else
+        {
+            System.err.println("could not retrieve duration from: "+this.file);
+        }
     }
 
     /**
-     * This method is called after the file attribute has been set; it verifies
-     * that the file exists and is a file, then attempts to load it as an audio
-     * file and cache its properties map.
+     * This method is called after the file attribute has been set; it verifies that the file exists and is a file, then
+     * attempts to load it as an audio file and cache its properties map.
      * 
      * @throws IOException
      * @throws UnsupportedAudioFileException
      * 
      */
-    private void verifyFileAndLoadProperties()
-            throws UnsupportedAudioFileException, IOException
+    private void verifyFileAndLoadProperties() throws UnsupportedAudioFileException, IOException
     {
-        if (this.file == null || !this.file.file().exists())
+        if (this.file == null)
         {
             throw new FileNotFoundException();
         }
         else
         {
             File audioFile = this.file.file();
-            AudioFileFormat baseFileFormat = AudioSystem
-                    .getAudioFileFormat(audioFile);
 
-            propertiesMap = (baseFileFormat).properties();
+            if (audioFile != null)
+            {
+                AudioFileFormat baseFileFormat = AudioSystem.getAudioFileFormat(audioFile);
+                propertiesMap = (baseFileFormat).properties();
+            }
+            else if (file.url() != null)
+            {
+                AudioFileFormat baseFileFormat = AudioSystem.getAudioFileFormat(file.url());
+                propertiesMap = baseFileFormat.properties();
+            }
+            else
+            {
+                throw new NullPointerException();
+            }
         }
     }
 
@@ -257,9 +265,8 @@ public class AudioFileMetadata extends ElementState implements Mappable<String>
     }
 
     /**
-     * Checks the validity of the associated file and re-loads any
-     * characteristics (duration, etc.), but not metadata, from the associated
-     * file.
+     * Checks the validity of the associated file and re-loads any characteristics (duration, etc.), but not metadata,
+     * from the associated file.
      */
     @Override protected void postTranslationProcessingHook()
     {
