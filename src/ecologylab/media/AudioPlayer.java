@@ -24,7 +24,7 @@ import ecologylab.xml.library.audiometadata.AudioFileMetadata;
 /**
  * This class performs simple sound playback.
  * 
- * @author Zach
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
 public class AudioPlayer extends Debug

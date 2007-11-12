@@ -9,7 +9,7 @@ import ecologylab.xml.types.element.Mappable;
 import ecologylab.xml.types.element.StringState;
 
 /**
- * @author Zach
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  *
  */
 public @xml_inherit class AudioFileMetadataList extends ArrayListState<StringState> implements Mappable<String>

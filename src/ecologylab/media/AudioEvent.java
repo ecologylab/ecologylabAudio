@@ -4,7 +4,7 @@
 package ecologylab.media;
 
 /**
- * @author Zach
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
 public class AudioEvent

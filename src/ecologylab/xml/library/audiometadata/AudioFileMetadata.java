@@ -33,7 +33,7 @@ import ecologylab.xml.types.element.Mappable;
  * 
  * This class does not yet support writing metadata back to the original audio file.
  * 
- * @author Zach
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
 public class AudioFileMetadata extends ElementState implements Mappable<String>
