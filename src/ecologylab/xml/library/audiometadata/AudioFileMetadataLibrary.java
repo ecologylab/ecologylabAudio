@@ -4,7 +4,6 @@
 package ecologylab.xml.library.audiometadata;
 
 import ecologylab.xml.xml_inherit;
-import ecologylab.xml.types.element.ArrayListState;
 import ecologylab.xml.types.element.HashMapState;
 
 /**

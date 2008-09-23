@@ -130,15 +130,20 @@ public class AudioFileMetadata extends ElementState implements Mappable<String>
         }
         else
         {
+      	  debug("File "+file+" exists. ");
             File audioFile = this.file.file();
 
             if (audioFile != null)
             {
+            	debug("audioFile != null");
                 AudioFileFormat baseFileFormat = AudioSystem.getAudioFileFormat(audioFile);
+                debug(baseFileFormat.toString());
                 propertiesMap = (baseFileFormat).properties();
+                debug(propertiesMap.toString());
             }
             else if (file.url() != null)
             {
+            	debug("file.url() != null");
                 AudioFileFormat baseFileFormat = AudioSystem.getAudioFileFormat(file.url());
                 propertiesMap = baseFileFormat.properties();
             }
