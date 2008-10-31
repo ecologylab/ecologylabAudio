@@ -6,7 +6,6 @@ package ecologylab.media;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -119,73 +118,71 @@ public class AudioPlayer extends Debug
             this.debug("There is no sound file currently set; cannot playback.");
             return;
         }
-        else
-        {
-            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(audioFile.getFile().file());
+        
+				AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(audioFile.getFile().file());
 
-            AudioFormat baseFormat = audioInputStream.getFormat();
+				AudioFormat baseFormat = audioInputStream.getFormat();
 
-            // attempt to get these settings automatically, if they cannot be gotten automatically, we must try the
-            // properties map; if that does not work, then we're hosed.
-            AudioFormat decodedFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 
-                    baseFormat.getSampleRate(),
-                    16,
-                    baseFormat.getChannels(), 
-                    baseFormat.getChannels() * 2,
-                    baseFormat.getSampleRate(), 
-                    false);
-            
-            debug("orig: "+baseFormat.toString());
-            debug("deco: "+decodedFormat.toString());
+				// attempt to get these settings automatically, if they cannot be gotten automatically, we must try the
+				// properties map; if that does not work, then we're hosed.
+				AudioFormat decodedFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 
+				        baseFormat.getSampleRate(),
+				        16,
+				        baseFormat.getChannels(), 
+				        baseFormat.getChannels() * 2,
+				        baseFormat.getSampleRate(), 
+				        false);
+				
+				debug("orig: "+baseFormat.toString());
+				debug("deco: "+decodedFormat.toString());
 
-            AudioInputStream din = AudioSystem.getAudioInputStream(decodedFormat, audioInputStream);
+				AudioInputStream din = AudioSystem.getAudioInputStream(decodedFormat, audioInputStream);
 
-            int frameSizeInBytes = decodedFormat.getFrameSize();
-            int bufferLengthInFrames = sourceDataLine.getBufferSize() / 8;
-            int bufferLengthInBytes = bufferLengthInFrames * frameSizeInBytes;
-            byte[] data = new byte[bufferLengthInBytes];
-            int numBytesRead = 0;
+				int frameSizeInBytes = decodedFormat.getFrameSize();
+				int bufferLengthInFrames = sourceDataLine.getBufferSize() / 8;
+				int bufferLengthInBytes = bufferLengthInFrames * frameSizeInBytes;
+				byte[] data = new byte[bufferLengthInBytes];
+				int numBytesRead = 0;
 
-            this.fireAudioEvent(AudioEvent.PLAY);
+				this.fireAudioEvent(AudioEvent.PLAY);
 
-            try
-            {
-                this.sourceDataLine.open(decodedFormat);
-            }
-            catch (LineUnavailableException e)
-            {
-                e.printStackTrace();
-                
-                debug("valid formats:");
-                
-                Line.Info lineInfo = sourceDataLine.getLineInfo();
-                for (AudioFormat a : ((DataLine.Info)lineInfo).getFormats())
-                {
-                    debug(a.toString());
-                }
-                
-                return;
-            }
+				try
+				{
+				    this.sourceDataLine.open(decodedFormat);
+				}
+				catch (LineUnavailableException e)
+				{
+				    e.printStackTrace();
+				    
+				    debug("valid formats:");
+				    
+				    Line.Info lineInfo = sourceDataLine.getLineInfo();
+				    for (AudioFormat a : ((DataLine.Info)lineInfo).getFormats())
+				    {
+				        debug(a.toString());
+				    }
+				    
+				    return;
+				}
 
-            sourceDataLine.start();
+				sourceDataLine.start();
 
-            while ((numBytesRead = din.read(data)) != -1)
-            {
-                int numBytesRemaining = numBytesRead;
+				while ((numBytesRead = din.read(data)) != -1)
+				{
+				    int numBytesRemaining = numBytesRead;
 
-                while (numBytesRemaining > 0)
-                {
-                    numBytesRemaining -= sourceDataLine.write(data, 0, numBytesRemaining);
-                }
-            }
-            
-            sourceDataLine.drain();
+				    while (numBytesRemaining > 0)
+				    {
+				        numBytesRemaining -= sourceDataLine.write(data, 0, numBytesRemaining);
+				    }
+				}
+				
+				sourceDataLine.drain();
 
-            sourceDataLine.stop();
-            sourceDataLine.close();
+				sourceDataLine.stop();
+				sourceDataLine.close();
 
-            this.fireAudioEvent(AudioEvent.FINISHED);
-        }
+				this.fireAudioEvent(AudioEvent.FINISHED);
     }
 
     /**
