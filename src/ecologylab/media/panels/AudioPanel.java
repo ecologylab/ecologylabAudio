@@ -8,6 +8,8 @@ import ecologylab.media.AudioBufferPlayer;
 
 public class AudioPanel extends JPanel
 {
+	private AudioWaveformPanel waveform;
+	
 	public AudioPanel(AudioBufferPlayer buffer, SoloListener s)
 	{
 		super();
@@ -32,7 +34,7 @@ public class AudioPanel extends JPanel
 		this.add(controllerPane);
 		
 		
-		JPanel waveform = new AudioWaveformPanel(buffer);
+		waveform = new AudioWaveformPanel(buffer);
 		c.gridx = 1;
 		c.gridy = 1;
 		c.weightx = 40.0;
@@ -48,5 +50,10 @@ public class AudioPanel extends JPanel
 	public AudioPanel(AudioBufferPlayer buffer)
 	{
 		this(buffer, null);
+	}
+	
+	public AudioWaveformPanel getWaveform()
+	{
+		return waveform;
 	}
 }

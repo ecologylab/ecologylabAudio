@@ -63,6 +63,7 @@ public class AudioWaveformPanel extends JPanel implements AdjustmentListener, Mo
 	private static final int timeMarkings = 5;
 	private ArrayList<JCheckBox> checkBoxes = new ArrayList<JCheckBox>();
 	private JLayeredPane layeredPane;
+	private Color waveformColor = Color.LIGHT_GRAY;
 	
 	public final int tickHeight = 3;
 	public final int barHeight = tickHeight + 17;		
@@ -149,6 +150,11 @@ public class AudioWaveformPanel extends JPanel implements AdjustmentListener, Mo
 		return checkBoxes.get(channel).isSelected();
 	}
 	
+	public void setColor(Color c)
+	{
+		this.waveformColor = c;
+	}
+	
 	public class OverlapAllChildrenLayout extends GridLayout
 	{
 		private static final long	serialVersionUID	= 1L;
@@ -227,9 +233,9 @@ public class AudioWaveformPanel extends JPanel implements AdjustmentListener, Mo
 			
 			if(waveform == null || 
 				((currentFrame < currentStartFrame || 
-				currentStartFrame + envelopeLength  < currentFrame) && !isAdjusting && buffer.isPlaying()) )
+				currentStartFrame + (envelopeLength * 0.8)  < currentFrame) && !isAdjusting && buffer.isPlaying()) )
 			{
-				setStartFrame(currentFrame);
+				setStartFrame((int) (currentFrame - (envelopeLength * 0.1)));
 			}
 			
 			if(waveformReset)
@@ -254,8 +260,11 @@ public class AudioWaveformPanel extends JPanel implements AdjustmentListener, Mo
 			
 			Graphics2D g2 = waveform.createGraphics();
 			
-			g2.setColor(Color.GRAY);
-			g2.fillRect(0,0,waveform.getWidth() , waveform.getHeight());
+			g2.setColor(waveformColor);
+			g2.fillRect(0,barHeight,waveform.getWidth() , waveform.getHeight() - barHeight);
+			
+			g2.setColor(waveformColor.darker());
+			g2.fillRect(0,0,waveform.getWidth() , barHeight);
 			
 			AffineTransform trans = g2.getTransform();
 			Font oldFont = g2.getFont();
@@ -294,7 +303,7 @@ public class AudioWaveformPanel extends JPanel implements AdjustmentListener, Mo
 				
 				Point high = new Point(0,0);
 		
-				g2.setColor(Color.BLUE);
+				g2.setColor(Color.DARK_GRAY);
 				
 				for(int x = 0; x < waveform.getWidth(); x++)
 				{

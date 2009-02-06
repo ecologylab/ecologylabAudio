@@ -38,6 +38,7 @@ public class DisplayMixersAndLines
                         System.out.println(a.toString());
                     }
                 }
+                
             }
 
             lines = AudioSystem.getMixer(info).getTargetLineInfo();
