@@ -1,5 +1,6 @@
 package ecologylab.media.panels;
 import java.awt.*;
+import java.util.ArrayList;
 
 import javax.swing.*;
 
@@ -11,6 +12,11 @@ public class AudioPanel extends JPanel
 	private AudioWaveformPanel waveform;
 	
 	public AudioPanel(AudioBufferPlayer buffer, SoloListener s)
+	{
+		this(buffer,s,null);
+	}
+	
+	public AudioPanel(AudioBufferPlayer buffer, SoloListener s, ArrayList<String> channelNames)
 	{
 		super();
 		
@@ -27,7 +33,7 @@ public class AudioPanel extends JPanel
 		c.gridheight = 1;
 		c.gridwidth = 1;
 				
-		JPanel controllerPane = new ChannelControllerPanel(buffer, s);
+		JPanel controllerPane = new ChannelControllerPanel(buffer, s, channelNames);
 		controllerPane.setMinimumSize(new Dimension(120,120));
 		
 		gridbag.setConstraints(controllerPane, c);

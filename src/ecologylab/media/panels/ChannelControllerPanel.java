@@ -37,6 +37,11 @@ public class ChannelControllerPanel extends JPanel implements ActionListener, Ch
 	
 	public ChannelControllerPanel(AudioBufferPlayer b, SoloListener s)
 	{
+		this(b,s,null);
+	}
+	
+	public ChannelControllerPanel(AudioBufferPlayer b, SoloListener s, ArrayList<String> channelNames)
+	{
 		this.buffer = b;
 		this.soloer = s;
 		
@@ -78,7 +83,8 @@ public class ChannelControllerPanel extends JPanel implements ActionListener, Ch
 		channelSelector.setEditable(false);
 		for(int x = 1; x <= buffer.getChannels(); x++)
 		{
-			String label = "Channel " + x;
+			String label = (channelNames != null && x <= channelNames.size())?
+										channelNames.get(x-1):"Channel " + x;
 			channelSelector.addItem(label);
 			this.selectionMap.put(label, x - 1);
 		}
