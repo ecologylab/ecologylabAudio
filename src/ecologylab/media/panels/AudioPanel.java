@@ -13,10 +13,15 @@ public class AudioPanel extends JPanel
 	
 	public AudioPanel(AudioBufferPlayer buffer, SoloListener s)
 	{
-		this(buffer,s,null);
+		this(buffer,s,null,null);
 	}
 	
-	public AudioPanel(AudioBufferPlayer buffer, SoloListener s, ArrayList<String> channelNames)
+	public AudioPanel(AudioBufferPlayer buffer, SoloListener s, ArrayList<Integer> channels)
+	{
+		this(buffer,s,channels,null);
+	}
+	
+	public AudioPanel(AudioBufferPlayer buffer, SoloListener s, ArrayList<Integer> channels, ArrayList<String> channelNames)
 	{
 		super();
 		
@@ -33,14 +38,14 @@ public class AudioPanel extends JPanel
 		c.gridheight = 1;
 		c.gridwidth = 1;
 				
-		JPanel controllerPane = new ChannelControllerPanel(buffer, s, channelNames);
+		JPanel controllerPane = new ChannelControllerPanel(buffer, s, channels, channelNames);
 		controllerPane.setMinimumSize(new Dimension(120,120));
 		
 		gridbag.setConstraints(controllerPane, c);
 		this.add(controllerPane);
 		
 		
-		waveform = new AudioWaveformPanel(buffer);
+		waveform = new AudioWaveformPanel(buffer, channels);
 		c.gridx = 1;
 		c.gridy = 1;
 		c.weightx = 40.0;

@@ -17,6 +17,7 @@ import java.util.HashMap;
 public class ChannelControllerPanel extends JPanel implements ActionListener, ChangeListener
 {
 	private AudioBufferPlayer buffer;
+	private ArrayList<Integer> channels;
 	private boolean soloing = false;
 	
 	private JSlider volumeSlider;
@@ -37,19 +38,33 @@ public class ChannelControllerPanel extends JPanel implements ActionListener, Ch
 	
 	public ChannelControllerPanel(AudioBufferPlayer b, SoloListener s)
 	{
-		this(b,s,null);
+		this(b,s,null,null);
 	}
 	
-	public ChannelControllerPanel(AudioBufferPlayer b, SoloListener s, ArrayList<String> channelNames)
+	public ChannelControllerPanel(AudioBufferPlayer b, SoloListener s, ArrayList<Integer> c)
+	{
+		this(b,s,c,null);
+	}
+	
+	public ChannelControllerPanel(AudioBufferPlayer b, SoloListener s, ArrayList<Integer> ch, ArrayList<String> channelNames)
 	{
 		this.buffer = b;
 		this.soloer = s;
+		if(ch != null)
+		{
+			this.channels = ch;
+		} else {
+			this.channels = new ArrayList<Integer>();
+			for(int x = 0; x < b.getChannels(); x++)
+			{
+				channels.add(x);
+			}
+		}
+		gainControls = new FloatControl[channels.size()];
+		panControls = new FloatControl[channels.size()];			
 		
-		gainControls = new FloatControl[b.getChannels()];
-		panControls = new FloatControl[b.getChannels()];
-				
 		Control[][] controls = b.getControls();
-		for(int x = 0; x < controls.length; x++)
+		for(int x : channels)
 		{
 			System.out.println("Line: " + x);
 			for(Control control : controls[x])
@@ -81,12 +96,12 @@ public class ChannelControllerPanel extends JPanel implements ActionListener, Ch
 		
 		channelSelector = new JComboBox();
 		channelSelector.setEditable(false);
-		for(int x = 1; x <= buffer.getChannels(); x++)
+		for(int x = 0; x < channels.size(); x++)
 		{
 			String label = (channelNames != null && x <= channelNames.size())?
-										channelNames.get(x-1):"Channel " + x;
+										channelNames.get(x):"Channel " + x;
 			channelSelector.addItem(label);
-			this.selectionMap.put(label, x - 1);
+			this.selectionMap.put(label, x);
 		}
 		
 		

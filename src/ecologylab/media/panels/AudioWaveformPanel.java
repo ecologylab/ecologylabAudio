@@ -64,14 +64,30 @@ public class AudioWaveformPanel extends JPanel implements AdjustmentListener, Mo
 	private ArrayList<JCheckBox> checkBoxes = new ArrayList<JCheckBox>();
 	private JLayeredPane layeredPane;
 	private Color waveformColor = Color.LIGHT_GRAY;
+	private ArrayList<Integer> channels;
 	
 	public final int tickHeight = 3;
 	public final int barHeight = tickHeight + 17;		
 	
 	public AudioWaveformPanel(AudioBufferPlayer b)
 	{
+		this(b,null);
+	}
+	
+	public AudioWaveformPanel(AudioBufferPlayer b, ArrayList<Integer> c)
+	{
 		super();
 		buffer = b;
+		if(c != null)
+		{
+			this.channels = c;
+		} else {
+			this.channels = new ArrayList<Integer>();
+			for(int x = 0; x < b.getChannels(); x++)
+			{
+				channels.add(x);
+			}
+		}
 		
 		maxEnvelopeLength = buffer.getFrames();
 		
@@ -96,9 +112,9 @@ public class AudioWaveformPanel extends JPanel implements AdjustmentListener, Mo
 		JPanel checkPanel = new JPanel();
 		MuteListener muteListener = new MuteListener();
 		
-		checkPanel.setLayout(new GridLayout(b.getChannels(),1));
+		checkPanel.setLayout(new GridLayout(channels.size(),1));
 		
-		for(int x = 0; x < b.getChannels(); x++)
+		for(int x : channels)
 		{
 			JCheckBox box = new JCheckBox();
 			box.setSelected(!buffer.lineMuted(x));
@@ -134,7 +150,7 @@ public class AudioWaveformPanel extends JPanel implements AdjustmentListener, Mo
 		{
 			for(int x = 0; x < checkBoxes.size(); x++)
 			{
-				buffer.muteChannel(x, !checkBoxes.get(x).isSelected());
+				buffer.muteChannel(channels.get(x), !checkBoxes.get(x).isSelected());
 			}
 		}
 	}
@@ -201,15 +217,15 @@ public class AudioWaveformPanel extends JPanel implements AdjustmentListener, Mo
 		public void paintComponent(Graphics g)
 		{
 			
-			int channelHeight = (this.getHeight()-barHeight)/buffer.getChannels();
+			int channelHeight = (this.getHeight()-barHeight)/channels.size();
 			
-			for(int channel = 0; channel < buffer.getChannels(); channel++)
+			for(int c = 0; c < channels.size(); c++)
 			{
-				if(buffer.lineMuted(channel))
+				if(buffer.lineMuted(c))
 				{
 					g.setColor(disabled);
 					
-					g.fillRect(0, barHeight + channel * channelHeight,
+					g.fillRect(0, barHeight + c * channelHeight,
 							this.getWidth(),channelHeight);
 				}
 			}
@@ -292,14 +308,14 @@ public class AudioWaveformPanel extends JPanel implements AdjustmentListener, Mo
 				g2.drawString(time, xOffset - metrics.stringWidth(time) / 2, barHeight - metrics.getMaxDescent());
 			}
 			
-			for(int channel = 0; channel < buffer.getChannels(); channel++)
+			for(int c = 0; c < channels.size(); c++)
 			{
-				g2.translate(0,(waveform.getHeight() - barHeight)/buffer.getChannels() * (0.5f + channel)  + barHeight);
-				g2.scale(1, (waveform.getHeight() - barHeight)/buffer.getChannels()/(2*(double)buffer.getMaxAbsAmplitudeForChannel(channel)));
+				g2.translate(0,(waveform.getHeight() - barHeight)/channels.size() * (0.5f + c)  + barHeight);
+				g2.scale(1, (waveform.getHeight() - barHeight)/channels.size()/(2*(double)buffer.getMaxAbsAmplitudeForChannel(c)));
 				
 				int pixelEnvWidth = (int) (envelopeLength / waveform.getWidth()); 
 				Point low = new Point(0,0);
-				low.setLocation(-1,buffer.getValueAt(currentStartFrame - pixelEnvWidth, channel));
+				low.setLocation(-1,buffer.getValueAt(currentStartFrame - pixelEnvWidth, channels.get(c)));
 				
 				Point high = new Point(0,0);
 		
@@ -309,7 +325,7 @@ public class AudioWaveformPanel extends JPanel implements AdjustmentListener, Mo
 				{
 					for(int y = 0; y < samplingDensity; y++)
 					{
-						high.setLocation(x, -buffer.getValueAt(currentStartFrame + x * pixelEnvWidth + y * pixelEnvWidth / samplingDensity , channel)); 
+						high.setLocation(x, -buffer.getValueAt(currentStartFrame + x * pixelEnvWidth + y * pixelEnvWidth / samplingDensity , channels.get(c))); 
 						g2.drawLine(low.x,low.y,
 									  	high.x,high.y);
 						low.setLocation(high);
