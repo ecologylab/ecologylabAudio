@@ -61,6 +61,8 @@ public class AudioPanel extends JPanel
 		gridbag.setConstraints(waveform, c);
 		this.add(waveform);
 
+		controllerPane.addChangeListener(waveform);
+		
 		this.setVisible(true);
 	}
 

@@ -47,18 +47,20 @@ public class ChannelControllerPanel extends JPanel implements ActionListener, Ch
 
 	private HashMap<Object, Integer>	selectionMap							= new HashMap<Object, Integer>();
 
-	public static final String				CHANNEL_SELECTION_COMMAND	= "channel";
+	public static final String				CHANNEL_SELECTION_COMMAND		= "channel";
 
-	public static final String				MUTE_CHANGED_COMMAND			= "mute_changed";
+	public static final String				MUTE_CHANGED_COMMAND				= "mute_changed";
 
-	public static final String				SOLO_COMMAND							= "solo";
+	public static final String				SOLO_COMMAND						= "solo";
 
-	public static final String				MAKE_PRIMARY							= "MAKE_PRIMARY";
+	public static final String				MAKE_PRIMARY						= "MAKE_PRIMARY";
 
 	public static final String				MAKE_SECONDARY						= "MAKE_SECONDARY";
 
-	public static final String				RESTORE										= "RESTORE";
+	public static final String				RESTORE								= "RESTORE";
 
+	private ArrayList<ChangeListener> 	changeListeners 					= new ArrayList<ChangeListener>();
+	
 	public ChannelControllerPanel(AudioBufferPlayer b, SoloListener s)
 	{
 		this(b, s, null, null);
@@ -229,7 +231,7 @@ public class ChannelControllerPanel extends JPanel implements ActionListener, Ch
 		{
 			volumeSlider.setEnabled(false);
 		}
-
+		this.fireChange(new ChangeEvent(this));
 	}
 
 	public void actionPerformed(ActionEvent arg0)
@@ -301,4 +303,16 @@ public class ChannelControllerPanel extends JPanel implements ActionListener, Ch
 
 		updateControls();
 	}
+	
+	public void addChangeListener(ChangeListener list)
+	{
+		changeListeners.add(list);
+	}
+	
+	public void fireChange(ChangeEvent e)
+	{
+		for(ChangeListener listener : changeListeners)
+			listener.stateChanged(e);
+	}
+	
 }

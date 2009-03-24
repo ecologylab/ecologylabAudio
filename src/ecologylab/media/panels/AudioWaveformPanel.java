@@ -44,11 +44,13 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import ecologylab.media.AudioBufferPlayer;
 
 
-public class AudioWaveformPanel extends JPanel implements AdjustmentListener, MouseListener, MouseWheelListener
+public class AudioWaveformPanel extends JPanel implements AdjustmentListener, MouseListener, MouseWheelListener, ChangeListener
 {
 	private int envelopeLength = 100000;
 	private int maxEnvelopeLength;
@@ -155,6 +157,14 @@ public class AudioWaveformPanel extends JPanel implements AdjustmentListener, Mo
 		}
 	}
 	
+	public void updateMuteChecks()
+	{
+		for(int x = 0; x < checkBoxes.size(); x++)
+		{
+			checkBoxes.get(x).setSelected(!buffer.lineMuted(x));
+		}
+	}
+	
 	public void updateScrollBounds()
 	{
 		scrollBar.setVisibleAmount(envelopeLength );
@@ -254,16 +264,8 @@ public class AudioWaveformPanel extends JPanel implements AdjustmentListener, Mo
 				setStartFrame((int) (currentFrame - (envelopeLength * 0.1)));
 			}
 			
-			if(waveformReset)
-			{
-				g2.drawImage(waveform, 0, 0, this);
-			}
-			else
-			{
-				
-				g2.drawImage(waveform.getSubimage(barPosition, 0, 1, waveform.getHeight()),barPosition,0,this);
-			}
-			
+			g2.drawImage(waveform, 0, 0, this);
+						
 			barPosition = (int) ((currentFrame - currentStartFrame) / (double)(envelopeLength) * this.getWidth());
 			
 			g2.setColor(Color.BLACK);
@@ -405,6 +407,11 @@ public class AudioWaveformPanel extends JPanel implements AdjustmentListener, Mo
 		
 		waveformPanel.resetBufferedWaveform();
 		updateScrollBounds();
+	}
+
+	public void stateChanged(ChangeEvent arg0)
+	{
+		this.updateMuteChecks();		
 	}
 		
 }
