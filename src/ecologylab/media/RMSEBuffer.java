@@ -31,7 +31,7 @@ public class RMSEBuffer
 	{
 		Double rmseVal = new Double(audioBuf.getRMSE(channel, audioBuf
 				.getSampleIndexFromTime(startTime), audioBuf.getSampleIndexFromTime(endTime)));
-
+		
 		this.rmseValues.add(rmseVal);
 
 		this.minRMSE = Math.min(minRMSE, rmseVal);

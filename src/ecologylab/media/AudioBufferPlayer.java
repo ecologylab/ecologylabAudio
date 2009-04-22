@@ -214,7 +214,7 @@ public class AudioBufferPlayer
 
 		rmseVal = Math.sqrt((sampleValueSummation / (endSampleIndex - startSampleIndex)));
 
-		return Math.log10(rmseVal);
+		return rmseVal;
 	}
 
 	/**
