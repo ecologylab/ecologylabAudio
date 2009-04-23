@@ -10,6 +10,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.LayoutManager;
 import java.awt.Point;
@@ -25,6 +26,7 @@ import java.awt.event.MouseWheelListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.VolatileImage;
 import java.util.ArrayList;
 
 import javax.sound.sampled.BooleanControl;
@@ -246,6 +248,7 @@ public class AudioWaveformPanel extends JPanel implements AdjustmentListener, Mo
 	private class Waveform extends JPanel implements ActionListener
 	{
 		private BufferedImage waveform;
+		private VolatileImage volWaveform = null;
 		private boolean waveformReset = true;
 		private int barPosition = 0;
 		
@@ -264,7 +267,7 @@ public class AudioWaveformPanel extends JPanel implements AdjustmentListener, Mo
 				setStartFrame((int) (currentFrame - (envelopeLength * 0.1)));
 			}
 			
-			g2.drawImage(waveform, 0, 0, this);
+			drawVolatileImage(g2,volWaveform, 0, 0, waveform);
 						
 			barPosition = (int) ((currentFrame - currentStartFrame) / (double)(envelopeLength) * this.getWidth());
 			
@@ -337,6 +340,10 @@ public class AudioWaveformPanel extends JPanel implements AdjustmentListener, Mo
 			}
 			
 			g2.setFont(oldFont);
+			
+			if(this.volWaveform != null)
+				this.volWaveform.flush();
+			
 			waveformReset = true;
 		}
 		
@@ -350,6 +357,63 @@ public class AudioWaveformPanel extends JPanel implements AdjustmentListener, Mo
 		{
 			this.repaint();
 		}
+		
+		// This method draws a volatile image and returns it or possibly a
+		// newly created volatile image object. Subsequent calls to this method
+		// should always use the returned volatile image.
+		// If the contents of the image is lost, it is recreated using orig.
+		// img may be null, in which case a new volatile image is created.
+		public VolatileImage drawVolatileImage(Graphics2D g, VolatileImage img,
+				int x, int y, Image orig)
+		{
+			final int MAX_TRIES = 100;
+			for (int i = 0; i < MAX_TRIES; i++)
+			{
+				if (img != null)
+				{
+					// Draw the volatile image
+					g.drawImage(img, x, y, null);
+
+					// Check if it is still valid
+					if (!img.contentsLost())
+					{
+						return img;
+					}
+				}
+				else
+				{
+					// Create the volatile image
+					img = g.getDeviceConfiguration().createCompatibleVolatileImage(
+							orig.getWidth(null), orig.getHeight(null));
+				}
+
+				// Determine how to fix the volatile image
+				switch (img.validate(g.getDeviceConfiguration()))
+				{
+				case VolatileImage.IMAGE_OK:
+					// This should not happen
+					break;
+				case VolatileImage.IMAGE_INCOMPATIBLE:
+					// Create a new volatile image object;
+					// this could happen if the component was moved to another device
+					img.flush();
+					img = g.getDeviceConfiguration().createCompatibleVolatileImage(
+							orig.getWidth(null), orig.getHeight(null));
+				case VolatileImage.IMAGE_RESTORED:
+					// Copy the original image to accelerated image memory
+					Graphics2D gc = (Graphics2D) img.createGraphics();
+					gc.drawImage(orig, 0, 0, null);
+					gc.dispose();
+					break;
+				}
+			}
+
+			// The image failed to be drawn after MAX_TRIES;
+			// draw with the non-accelerated image
+			g.drawImage(orig, x, y, null);
+			return img;
+		}
+
 	}
 	
 	private void setStartFrame(int frame)
