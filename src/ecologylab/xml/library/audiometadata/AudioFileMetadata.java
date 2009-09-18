@@ -3,14 +3,23 @@
  */
 package ecologylab.xml.library.audiometadata;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Map;
+import java.util.logging.LogManager;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
+
+import org.jaudiotagger.audio.AudioFile;
+import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.audio.exceptions.CannotReadException;
+import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
+import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
+import org.jaudiotagger.tag.TagException;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
@@ -60,6 +69,7 @@ public class AudioFileMetadata extends ElementState implements Mappable<String>
     @xml_attribute String              id;
 
     protected Map<String, Object>      propertiesMap;
+    protected AudioFile 			   audioFile;
 
     /**
      * No-arg constructor for XML conversion.
@@ -70,20 +80,20 @@ public class AudioFileMetadata extends ElementState implements Mappable<String>
     {
     }
 
-    public AudioFileMetadata(File audioFile) throws IOException, ClassCastException, UnsupportedAudioFileException
+    public AudioFileMetadata(File audioFile) throws IOException, ClassCastException, UnsupportedAudioFileException, CannotReadException, TagException, ReadOnlyFileException, InvalidAudioFrameException
     {
         this(new ParsedURL(audioFile));
     }
 
     public AudioFileMetadata(ParsedURL audioFileURL) throws ClassCastException, IOException,
-            UnsupportedAudioFileException
+            UnsupportedAudioFileException, CannotReadException, TagException, ReadOnlyFileException, InvalidAudioFrameException
     {
         this.file = audioFileURL;
 
-        this.populateMetadataFromFile();
+        this.populateMetadataFromFileUsingJAudioTagger();
     }
 
-    protected void populateMetadataFromFile() throws ClassCastException, IOException, UnsupportedAudioFileException
+    @Deprecated protected void populateMetadataFromFile() throws ClassCastException, IOException, UnsupportedAudioFileException
     {
         this.verifyFileAndLoadProperties();
 
@@ -92,7 +102,7 @@ public class AudioFileMetadata extends ElementState implements Mappable<String>
         this.id = String.valueOf(System.currentTimeMillis()) + this.title;
     }
 
-    public void refreshMetadataFromFile()
+    @Deprecated public void refreshMetadataFromFile()
     {
         // metadata
         this.album = (String) propertiesMap.get("album");
@@ -113,7 +123,7 @@ public class AudioFileMetadata extends ElementState implements Mappable<String>
             System.err.println("could not retrieve duration from: "+this.file);
         }
     }
-
+    
     /**
      * This method is called after the file attribute has been set; it verifies that the file exists and is a file, then
      * attempts to load it as an audio file and cache its properties map.
@@ -122,7 +132,7 @@ public class AudioFileMetadata extends ElementState implements Mappable<String>
      * @throws UnsupportedAudioFileException
      * 
      */
-    private void verifyFileAndLoadProperties() throws UnsupportedAudioFileException, IOException
+    @Deprecated private void verifyFileAndLoadProperties() throws UnsupportedAudioFileException, IOException
     {
         if (this.file == null)
         {
@@ -153,6 +163,43 @@ public class AudioFileMetadata extends ElementState implements Mappable<String>
             }
         }
     }
+
+    protected void populateMetadataFromFileUsingJAudioTagger() throws ClassCastException, IOException, UnsupportedAudioFileException, CannotReadException, TagException, ReadOnlyFileException, InvalidAudioFrameException
+    {
+        this.verifyFileAndLoadJAudioProperties();
+
+        this.refreshMetadataFromJAudioFile();
+
+        this.id = String.valueOf(System.currentTimeMillis()) + this.title;
+    }
+
+    private void verifyFileAndLoadJAudioProperties() throws CannotReadException, IOException, TagException, ReadOnlyFileException, InvalidAudioFrameException {
+    	
+    	 LogManager.getLogManager().readConfiguration(new ByteArrayInputStream("org.jaudiotagger.level = OFF".getBytes()));
+		
+    	 if (this.file == null)
+         {
+             throw new FileNotFoundException();
+         }
+    	 File f = this.file.file();
+		 this.audioFile = AudioFileIO.read(f);
+	}
+    
+    public void refreshMetadataFromJAudioFile()
+    {
+    	
+    	org.jaudiotagger.tag.Tag tag = audioFile.getTag();
+        // metadata
+        this.album = tag.getFirstAlbum();
+        this.artist = tag.getFirstArtist();
+        this.comment = tag.getFirstComment();        
+        this.genre = tag.getFirstGenre();
+        this.title = tag.getFirstTitle();
+        this.year = tag.getFirstYear();
+        this.track = tag.getFirstTrack();
+        this.duration = audioFile.getAudioHeader().getTrackLength();
+    }
+    
 
     /**
      * @return the title
