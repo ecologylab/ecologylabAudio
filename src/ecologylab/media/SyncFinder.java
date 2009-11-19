@@ -1,6 +1,5 @@
 package ecologylab.media;
 
-import java.util.ArrayList;
 
 public interface SyncFinder
 {

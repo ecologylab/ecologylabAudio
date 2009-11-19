@@ -17,7 +17,13 @@ import javax.sound.sampled.Mixer;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-public class AudioBufferPlayer
+import ecologylab.generic.Debug;
+
+/**
+ * 
+ * @author William Hamilton (bill@ecologylab.net)
+ */
+public class AudioBufferPlayer extends Debug
 {
 	private byte[][]					rawData;
 
@@ -31,27 +37,21 @@ public class AudioBufferPlayer
 
 	private SourceDataLine[]	lines;
 
-	private Integer						playIndex					= 0;
-
-	private int								syncIndex					= 0;
+	private int								syncIndex				= 0;
 
 	private boolean						playing;
 
-	private Object						playSync					= new Object();
+	private Object						playSync				= new Object();
 
 	private ChannelPlayer[]		players;
 
-	public static final int		frame_interval		= 1000;
-
-	private Thread						playerThread;
-
-	private long							lastFramePosition	= 0;
+	public static final int		frame_interval	= 1000;
 
 	private int[]							maxAmplitudeAbs;
 
-	private int								numChannels				= 0;
+	private int								numChannels			= 0;
 
-	private boolean						muteAll						= false;
+	private boolean						muteAll					= false;
 
 	private boolean[]					lineMutes;
 
@@ -293,6 +293,15 @@ public class AudioBufferPlayer
 		return AudioSystem.NOT_SPECIFIED;
 	}
 
+	/**
+	 * Acquires the signal amplitude at a given frame on a given channel.
+	 * 
+	 * @param frame
+	 *          the frame for the signal amplitude desired.
+	 * @param channel
+	 *          the channel for the signal amplitude desired.
+	 * @return the amplitude value from the signal on channel at frame.
+	 */
 	public int getValueAt(int frame, int channel)
 	{
 		if (frame < 0 || frame >= rawData[channel].length / splitFormat.getFrameSize())
@@ -346,6 +355,31 @@ public class AudioBufferPlayer
 		return AudioSystem.NOT_SPECIFIED;
 	}
 
+	/**
+	 * Acquires the signal amplitudes at a given frame on a given channel.
+	 * 
+	 * @param startFrame
+	 *          the start frame for the subsequence of amplitudes (inclusive)
+	 * @param endFrame
+	 *          the end frame for the subsequence of amplitudes (exclusive)
+	 * @param channel
+	 *          the channel for the signal amplitudes desired.
+	 * @return the sequence of amplitude values from the signal on channel between startFrame and
+	 *         endFrame-1.
+	 */
+	public int[] getValuesInRange(int startFrame, int endFrame, int channel)
+	{
+		debug("getting audio range from "+startFrame+" to "+endFrame+" (total size "+(endFrame-startFrame)+")");
+		int[] retVal = new int[endFrame - startFrame];
+
+		for (int i = startFrame; i < endFrame; i++)
+		{
+			retVal[i - startFrame] = this.getValueAt(i, channel);
+		}
+
+		return retVal;
+	}
+
 	public AudioFormat getFormat()
 	{
 		return unsplitFormat;
@@ -356,7 +390,10 @@ public class AudioBufferPlayer
 		return (long) (rawData[0].length / splitFormat.getFrameSize() / splitFormat.getFrameRate() * 1000);
 	}
 
-	public int getFrames()
+	/**
+	 * @return the length of the audio buffer, in frames.
+	 */
+	public int getBufferLength()
 	{
 		return rawData[0].length / splitFormat.getFrameSize();
 	}
@@ -384,7 +421,7 @@ public class AudioBufferPlayer
 		int max = this.getMinAmplitude();
 
 		int start = Math.max(0, frameIndex - envelopeSize / 2);
-		int end = Math.min(frameIndex + envelopeSize / 2, getFrames() - 1);
+		int end = Math.min(frameIndex + envelopeSize / 2, getBufferLength() - 1);
 
 		int step = Math.max(1, (start - end) / samplingDensity);
 
@@ -400,7 +437,7 @@ public class AudioBufferPlayer
 		int max = this.getMinAmplitude();
 
 		int start = Math.max(0, frameIndex - envelopeSize / 2);
-		int end = Math.min(frameIndex + envelopeSize / 2, getFrames() - 1);
+		int end = Math.min(frameIndex + envelopeSize / 2, getBufferLength() - 1);
 
 		int step = Math.max(1, (start - end) / samplingDensity);
 
@@ -416,7 +453,7 @@ public class AudioBufferPlayer
 		int min = this.getMaxAmplitude();
 
 		int start = Math.max(0, frameIndex - envelopeSize / 2);
-		int end = Math.min(frameIndex + envelopeSize / 2, getFrames() - 1);
+		int end = Math.min(frameIndex + envelopeSize / 2, getBufferLength() - 1);
 
 		int step = Math.max(1, (start - end) / samplingDensity);
 
