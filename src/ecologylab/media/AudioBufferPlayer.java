@@ -57,6 +57,45 @@ public class AudioBufferPlayer extends Debug
 
 	private BooleanControl[]	muteControls;
 
+	/**
+	 * Releases all resources held by this object.
+	 */
+	public void recycle()
+	{
+		this.rawData = null;
+		
+		for (int i = 0; i < dataBuffers.length; i++)
+		{
+			dataBuffers[i].clear();
+			dataBuffers[i] = null;
+		}
+		
+		dataBuffers = null;
+		
+		unsplitFormat = null;
+		splitFormat = null;
+		mixer = null;
+		
+		for (int i = 0; i < lines.length; i++)
+			lines[i] = null;
+
+		lines = null;
+		
+		playSync = null;
+		
+		for (int i = 0; i < players.length; i++)
+			players[i] = null;
+		
+		players = null;
+		maxAmplitudeAbs = null;
+		lineMutes = null;
+		
+		for (int i = 0; i < muteControls.length; i++)
+			muteControls[i] = null;
+		
+		muteControls = null;
+	}
+	
 	public AudioBufferPlayer(File f, Mixer.Info mixerInfo) throws UnsupportedAudioFileException,
 			IOException, LineUnavailableException
 	{
