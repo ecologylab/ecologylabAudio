@@ -67,19 +67,29 @@ public class AudioBufferPlayer extends Debug
 						/ unsplitFormat.getChannels(), unsplitFormat.getFrameRate(), unsplitFormat
 						.isBigEndian());
 
-		System.out.println(unsplitFormat.toString());
+		debug(unsplitFormat.toString()+", frame length: "+stream.getFrameLength());
 		numChannels = unsplitFormat.getChannels();
 		maxAmplitudeAbs = new int[numChannels];
 
 		byte[] unsplitData = new byte[(int) (stream.getFrameLength() * unsplitFormat.getFrameSize())];
 		playing = false;
 
-		int readIndex = 0;
+//		int readIndex = 0;
 
-		while (readIndex < unsplitData.length)
-		{
-			readIndex += stream.read(unsplitData, readIndex, unsplitData.length - readIndex);
-		}
+		stream.read(unsplitData);
+
+		//		while (readIndex < unsplitData.length)
+//		{
+//			try
+//			{
+//				debug("readIndex is "+readIndex+"; "+(unsplitData.length - readIndex));
+//				readIndex += stream.read(unsplitData, readIndex, unsplitData.length - readIndex);
+//			}
+//			catch (IndexOutOfBoundsException e)
+//			{
+//				e.printStackTrace();
+//			}
+//		}
 
 		rawData = new byte[unsplitFormat.getChannels()][unsplitData.length
 				/ unsplitFormat.getChannels()];
@@ -294,13 +304,13 @@ public class AudioBufferPlayer extends Debug
 	}
 
 	/**
-	 * Acquires the signal amplitude at a given frame on a given channel.
+	 * Acquires the signal value at a given frame on a given channel.
 	 * 
 	 * @param frame
-	 *          the frame for the signal amplitude desired.
+	 *          the frame for the signal value desired.
 	 * @param channel
 	 *          the channel for the signal amplitude desired.
-	 * @return the amplitude value from the signal on channel at frame.
+	 * @return the value from the signal on channel at frame.
 	 */
 	public int getValueAt(int frame, int channel)
 	{
@@ -369,7 +379,7 @@ public class AudioBufferPlayer extends Debug
 	 */
 	public int[] getValuesInRange(int startFrame, int endFrame, int channel)
 	{
-		debug("getting audio range from "+startFrame+" to "+endFrame+" (total size "+(endFrame-startFrame)+")");
+//		debug("getting audio range from "+startFrame+" to "+endFrame+" (total size "+(endFrame-startFrame)+")");
 		int[] retVal = new int[endFrame - startFrame];
 
 		for (int i = startFrame; i < endFrame; i++)
