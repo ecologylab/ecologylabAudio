@@ -7,7 +7,7 @@ import ecologylab.xml.xml_inherit;
 import ecologylab.xml.types.element.HashMapState;
 
 /**
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  * 
  */
 public @xml_inherit class AudioFileMetadataLibrary extends HashMapState<String, AudioFileMetadata>
