@@ -3,61 +3,70 @@
  */
 package ecologylab.xml.library.audiometadata;
 
+import java.util.ArrayList;
+
+import ecologylab.xml.ElementState;
 import ecologylab.xml.xml_inherit;
-import ecologylab.xml.types.element.ArrayListState;
 import ecologylab.xml.types.element.Mappable;
 import ecologylab.xml.types.element.StringState;
 
 /**
  * @author Zachary O. Toups (zach@ecologylab.net)
- *
+ * 
  */
-public @xml_inherit class AudioFileMetadataList extends ArrayListState<StringState> implements Mappable<String>
+public @xml_inherit
+class AudioFileMetadataList extends ElementState implements Mappable<String>
 {
-    @xml_attribute private String title;
+	@xml_collection
+	@xml_nowrap
+	ArrayList<StringState>	list	= new ArrayList<StringState>();
 
-    /**
+	@xml_attribute
+	private String					title;
+
+	/**
      * 
      */
-    public AudioFileMetadataList()
-    {
-    }
-    
-    public AudioFileMetadataList(String title)
-    {
-        this.title = title;
-    }
+	public AudioFileMetadataList()
+	{
+	}
 
-    /**
-     * @see ecologylab.xml.types.element.ArrayListState#add(ecologylab.xml.ElementState)
-     */
-    public boolean add(AudioFileMetadata elementState)
-    {
-        return super.add(new StringState(elementState.getId()));
-    }
+	public AudioFileMetadataList(String title)
+	{
+		this.title = title;
+	}
 
-    /**
-     * @param title the title to set
-     */
-    public void setTitle(String title)
-    {
-        this.title = title;
-    }
+	/**
+	 * @see ecologylab.xml.types.element.ArrayListState#add(ecologylab.xml.ElementState)
+	 */
+	public boolean add(AudioFileMetadata elementState)
+	{
+		return list.add(new StringState(elementState.getId()));
+	}
 
-    /**
-     * @return the title
-     */
-    public String getTitle()
-    {
-        return title;
-    }
+	/**
+	 * @param title
+	 *          the title to set
+	 */
+	public void setTitle(String title)
+	{
+		this.title = title;
+	}
 
-    /**
-     * @see ecologylab.xml.types.element.Mappable#key()
-     */
-    public String key()
-    {
-        return title;
-    }
+	/**
+	 * @return the title
+	 */
+	public String getTitle()
+	{
+		return title;
+	}
+
+	/**
+	 * @see ecologylab.xml.types.element.Mappable#key()
+	 */
+	public String key()
+	{
+		return title;
+	}
 
 }

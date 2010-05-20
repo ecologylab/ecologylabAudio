@@ -3,40 +3,45 @@
  */
 package ecologylab.xml.library.audiometadata;
 
-import ecologylab.xml.xml_inherit;
-import ecologylab.xml.types.element.HashMapState;
+import java.util.HashMap;
+
+import ecologylab.xml.ElementState;
 
 /**
  * @author Zachary O. Toups (zach@ecologylab.net)
  * 
  */
-public @xml_inherit class AudioFileMetadataLibrary extends HashMapState<String, AudioFileMetadata>
+public class AudioFileMetadataLibrary extends ElementState
 {
-    @xml_nested private HashMapState<String, AudioFileMetadataList> lists = new HashMapState<String, AudioFileMetadataList>();
+	@xml_map @xml_nowrap
+	protected HashMap<String, AudioFileMetadata>		map		= new HashMap<String, AudioFileMetadata>();
 
-    public AudioFileMetadataLibrary()
-    {
-    }
+	@xml_nested
+	private HashMap<String, AudioFileMetadataList>	lists	= new HashMap<String, AudioFileMetadataList>();
 
-    /**
-     * Adds the given list to the set of stored lists. If there is a title collision, returns the previous list with the
-     * same title and removes it.
-     * 
-     * @param newList
-     * @return
-     */
-    public AudioFileMetadataList addList(AudioFileMetadataList newList)
-    {
-        return this.lists.put(newList.key(), newList);
-    }
-    
-    public AudioFileMetadataList removeList(String listName)
-    {
-        return this.lists.remove(listName);
-    }
-    
-    public AudioFileMetadataList getList(String listName)
-    {
-        return this.lists.get(listName);
-    }
+	public AudioFileMetadataLibrary()
+	{
+	}
+
+	/**
+	 * Adds the given list to the set of stored lists. If there is a title collision, returns the
+	 * previous list with the same title and removes it.
+	 * 
+	 * @param newList
+	 * @return
+	 */
+	public AudioFileMetadataList addList(AudioFileMetadataList newList)
+	{
+		return this.lists.put(newList.key(), newList);
+	}
+
+	public AudioFileMetadataList removeList(String listName)
+	{
+		return this.lists.remove(listName);
+	}
+
+	public AudioFileMetadataList getList(String listName)
+	{
+		return this.lists.get(listName);
+	}
 }
