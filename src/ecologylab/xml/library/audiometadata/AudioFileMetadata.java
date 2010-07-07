@@ -22,8 +22,8 @@ import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
 import org.jaudiotagger.tag.TagException;
 
 import ecologylab.net.ParsedURL;
-import ecologylab.xml.ElementState;
-import ecologylab.xml.types.element.Mappable;
+import ecologylab.serialization.ElementState;
+import ecologylab.serialization.types.element.Mappable;
 
 /**
  * Library for creating and manipulating XML based upon an audio file's metadata tags and characteristics, such as
@@ -354,7 +354,7 @@ public class AudioFileMetadata extends ElementState implements Mappable<String>
     }
 
     /**
-     * @see ecologylab.xml.types.element.Mappable#key()
+     * @see ecologylab.serialization.types.element.Mappable#key()
      */
     public String key()
     {

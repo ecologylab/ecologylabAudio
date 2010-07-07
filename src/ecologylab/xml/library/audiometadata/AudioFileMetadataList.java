@@ -5,10 +5,10 @@ package ecologylab.xml.library.audiometadata;
 
 import java.util.ArrayList;
 
-import ecologylab.xml.ElementState;
-import ecologylab.xml.simpl_inherit;
-import ecologylab.xml.types.element.Mappable;
-import ecologylab.xml.types.element.StringState;
+import ecologylab.serialization.ElementState;
+import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.types.element.Mappable;
+import ecologylab.serialization.types.element.StringState;
 
 /**
  * @author Zachary O. Toups (zach@ecologylab.net)
@@ -37,7 +37,7 @@ class AudioFileMetadataList extends ElementState implements Mappable<String>
 	}
 
 	/**
-	 * @see ecologylab.xml.types.element.ArrayListState#add(ecologylab.xml.ElementState)
+	 * @see ecologylab.serialization.types.element.ArrayListState#add(ecologylab.serialization.ElementState)
 	 */
 	public boolean add(AudioFileMetadata elementState)
 	{
@@ -62,7 +62,7 @@ class AudioFileMetadataList extends ElementState implements Mappable<String>
 	}
 
 	/**
-	 * @see ecologylab.xml.types.element.Mappable#key()
+	 * @see ecologylab.serialization.types.element.Mappable#key()
 	 */
 	public String key()
 	{

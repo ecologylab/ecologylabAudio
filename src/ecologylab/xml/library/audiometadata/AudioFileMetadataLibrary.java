@@ -5,7 +5,7 @@ package ecologylab.xml.library.audiometadata;
 
 import java.util.HashMap;
 
-import ecologylab.xml.ElementState;
+import ecologylab.serialization.ElementState;
 
 /**
  * @author Zachary O. Toups (zach@ecologylab.net)
