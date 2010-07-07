@@ -13,10 +13,10 @@ import ecologylab.xml.ElementState;
  */
 public class AudioFileMetadataLibrary extends ElementState
 {
-	@xml_map @xml_nowrap
+	@simpl_map @simpl_nowrap
 	protected HashMap<String, AudioFileMetadata>		map		= new HashMap<String, AudioFileMetadata>();
 
-	@xml_nested
+	@simpl_composite
 	private HashMap<String, AudioFileMetadataList>	lists	= new HashMap<String, AudioFileMetadataList>();
 
 	public AudioFileMetadataLibrary()

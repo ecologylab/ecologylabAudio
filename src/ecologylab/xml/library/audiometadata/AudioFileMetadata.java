@@ -47,26 +47,26 @@ import ecologylab.xml.types.element.Mappable;
  */
 public class AudioFileMetadata extends ElementState implements Mappable<String>
 {
-    @xml_attribute protected String    title;
+    @simpl_scalar protected String    title;
 
-    @xml_attribute protected String    artist;
+    @simpl_scalar protected String    artist;
 
-    @xml_attribute protected String    album;
+    @simpl_scalar protected String    album;
 
-    @xml_attribute protected String    year;
+    @simpl_scalar protected String    year;
 
-    @xml_attribute protected String    comment;
+    @simpl_scalar protected String    comment;
 
-    @xml_attribute protected String    genre;
+    @simpl_scalar protected String    genre;
 
-    @xml_attribute protected String    track;
+    @simpl_scalar protected String    track;
 
-    @xml_attribute protected long      duration;
+    @simpl_scalar protected long      duration;
 
-    @xml_attribute protected ParsedURL file;
+    @simpl_scalar protected ParsedURL file;
 
     /** The unique identifier for this object; time when created + track title when created. */
-    @xml_attribute String              id;
+    @simpl_scalar String              id;
 
     protected Map<String, Object>      propertiesMap;
     protected AudioFile 			   audioFile;

@@ -6,7 +6,7 @@ package ecologylab.xml.library.audiometadata;
 import java.util.ArrayList;
 
 import ecologylab.xml.ElementState;
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 import ecologylab.xml.types.element.Mappable;
 import ecologylab.xml.types.element.StringState;
 
@@ -14,14 +14,14 @@ import ecologylab.xml.types.element.StringState;
  * @author Zachary O. Toups (zach@ecologylab.net)
  * 
  */
-public @xml_inherit
+public @simpl_inherit
 class AudioFileMetadataList extends ElementState implements Mappable<String>
 {
-	@xml_collection
-	@xml_nowrap
+	@simpl_collection
+	@simpl_nowrap
 	ArrayList<StringState>	list	= new ArrayList<StringState>();
 
-	@xml_attribute
+	@simpl_scalar
 	private String					title;
 
 	/**
