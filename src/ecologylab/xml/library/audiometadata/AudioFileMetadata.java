@@ -320,7 +320,7 @@ public class AudioFileMetadata extends ElementState implements Mappable<String>
      * Checks the validity of the associated file and re-loads any characteristics (duration, etc.), but not metadata,
      * from the associated file.
      */
-    @Override protected void postTranslationProcessingHook()
+    @Override protected void postDeserializationHook()
     {
         try
         {
@@ -335,7 +335,7 @@ public class AudioFileMetadata extends ElementState implements Mappable<String>
             e.printStackTrace();
         }
 
-        super.preTranslationProcessingHook();
+        super.preSerializationHook();
     }
 
     public String getTrack()
