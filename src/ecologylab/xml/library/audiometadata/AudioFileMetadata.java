@@ -315,6 +315,8 @@ public class AudioFileMetadata extends ElementState implements Mappable<String>
     {
         return duration;
     }
+    
+    
 
     /**
      * Checks the validity of the associated file and re-loads any characteristics (duration, etc.), but not metadata,
@@ -335,7 +337,7 @@ public class AudioFileMetadata extends ElementState implements Mappable<String>
             e.printStackTrace();
         }
 
-        super.serializationPreHook();
+        super.deserializationPostHook();
     }
 
     public String getTrack()
