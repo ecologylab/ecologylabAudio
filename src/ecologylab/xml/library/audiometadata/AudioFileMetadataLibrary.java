@@ -6,6 +6,9 @@ package ecologylab.xml.library.audiometadata;
 import java.util.HashMap;
 
 import ecologylab.serialization.ElementState;
+import ecologylab.serialization.annotations.simpl_composite;
+import ecologylab.serialization.annotations.simpl_map;
+import ecologylab.serialization.annotations.simpl_nowrap;
 
 /**
  * @author Zachary O. Toups (zach@ecologylab.net)
