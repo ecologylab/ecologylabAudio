@@ -8,5 +8,6 @@
 	<classpathentry kind="lib" path="lib/tritonus_share.jar"/>
 	<classpathentry kind="lib" path="lib/mp3plugin.jar"/>
 	<classpathentry kind="lib" path="lib/jaudiotagger.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/ecologylabGraphics"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

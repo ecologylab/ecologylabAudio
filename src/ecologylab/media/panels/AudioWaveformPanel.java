@@ -2,14 +2,12 @@ package ecologylab.media.panels;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Image;
-import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Scrollbar;
 import java.awt.event.ActionEvent;
@@ -36,6 +34,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import ecologylab.media.AudioBufferPlayer;
+import ecologylab.rendering.layout.OverlapAllChildrenLayout;
 
 public class AudioWaveformPanel extends JPanel implements AdjustmentListener, MouseListener,
 		MouseWheelListener, ChangeListener
@@ -181,39 +180,6 @@ public class AudioWaveformPanel extends JPanel implements AdjustmentListener, Mo
 	public void setColor(Color c)
 	{
 		this.waveformColor = c;
-	}
-
-	public class OverlapAllChildrenLayout extends GridLayout
-	{
-		private static final long	serialVersionUID	= 1L;
-
-		public OverlapAllChildrenLayout()
-		{
-			super(1, 1);
-		}
-
-		public void layoutContainer(Container parent)
-		{
-			synchronized (parent.getTreeLock())
-			{
-				Insets insets = parent.getInsets();
-				int ncomponents = parent.getComponentCount();
-
-				if (ncomponents == 0)
-				{
-					return;
-				}
-
-				int w = parent.getWidth() - (insets.left + insets.right);
-				int h = parent.getHeight() - (insets.top + insets.bottom);
-
-				for (int i = 0; i < ncomponents; i++)
-				{
-					parent.getComponent(i).setBounds(insets.left, insets.top, w, h);
-				}
-
-			}
-		}
 	}
 
 	private class SelectionPane extends JPanel
